@@ -4,7 +4,8 @@
 */
 var assert = require('assert'),
     vows = require('vows'),
-    Router = require('../lib/router');
+    Router = require('../lib/router'),
+		_ = require('underscore')._;
 
 var forum = { id : 5 },
     thread = { id : 50 },
