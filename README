@@ -1,0 +1,26 @@
+Dispatch is a resourceful router and request handler structure for Node.js.  Handles
+requests placed in its request queue, which in the future can be extended to a worker-based
+distributed system for resource-based elastic capacity scaling.
+
+6 Oct 2011: This is a collection of files I've written that need to get stitched together
+so people can make sense of them and add them to their own project.
+
+Rough structure:
+- everything assumes availability of underscore.js
+- router.js - the router and path generator; paths exportable via browserify bify.append(router.path.toString());
+- controller.js - the controller base class
+- render.js - template rendering, today based on Jade, that provides helpers & other goodies
+- helpers -- (available during rendering) - this is in the example structure, should be moved to default helpers
+
+Missing items (in rough priority order):
+- vows specs for all items; make them run in this environment
+  - fix paths to be general (for example, /app/views etc)
+  - remove CONFIG object
+  - fix logging (uses winston plus some configuration; needs cleanup)
+- roll up controllers with a single helper function to load them from the expected directory
+- move helpers to be default helpers (keep custom helper capability)
+- improvements to render, redirect, etc to be more full-featured
+- select 3rd party inheritance structure or keep rolling our own?
+- generalize away from Jade to allowing pluggable templates
+
+- Paul

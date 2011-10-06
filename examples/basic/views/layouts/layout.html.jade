@@ -1,0 +1,10 @@
+!!! 5
+html
+	head
+		!= csrf_meta_tag()
+	body
+		- if (flash('notice'))
+			div#messages
+			- each message in flash('notice')
+				.message= message
+		!= body
