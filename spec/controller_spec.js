@@ -25,42 +25,74 @@ var next = function () {
 
 // A global to inform whether a custom action has been called or not.
 // Set to false before defining a custom action (i.e., in the topic).
-var myCoolActionCalled = false;
-var customActionCalled = false;
+var actionsCalled = [],
+	hooks;
 
-function testControllerActions (controller) {
+function defineAction (actionName) {
+	return function (req, res, next) {
+		actionsCalled[actionName] = true;
+		return;
+	};
+}
+function defineHook (hookName) {
+	return function (req, res, callback) {
+		customActionCounter++;
+		hooks.push(hookName);
+		callback();
+	};
+}
+
+/**
+ 	Returns an object that is passed into a Vows batch.
+	@param controller
+	@param expectedActions An array of actions that should be run
+	@param expectedHooks An array of hooks that should be run in order
+*/
+
+function testControllerActions (controller, expectedActions, expectedHooks) {
 	var tests = {
 		'topic': controller,
 		'action processed correctly' : function (controller) {
 			var error = false;
+			actionsCalled = [];
+			customActionCounter = 0;
 			try {
-				myCoolActionCalled = false;
-				req.action = 'myCoolAction';
-				controller.addRequest(req, res, next);
+				expectedActions.forEach(function (action) {
+					req.action = action;
+					controller.addRequest(req, res, next);
+					assert.isTrue(actionsCalled[action]);
+				});
 			} catch (err) {
 				error = err;
 			}
-			assert.strictEqual(error, false);
-			assert.strictEqual(myCoolActionCalled, true);
+			assert.isFalse(error);
+			assert.strictEqual(customActionCounter, expectedHooks.length);
+			expectedHooks.forEach(function (hook, i) {
+				assert.strictEqual(hooks[i], hook);
+			});
 		},
 		'req has an implemented action' : function (controller) {
 			var error = false;
-			customActionCalled = false;
+			customActionCounter = 0;
+			actionsCalled = [];
 			try {
-				req.action = 'myCoolAction';
-				controller.addRequest(req, res, next);
+				expectedActions.forEach(function (action) {
+					req.action = action;
+					controller.addRequest(req, res, next);
+					assert.isTrue(actionsCalled[action]);
+				});
 			} catch (err) {
 				error = err;
 			}
-			assert.strictEqual(error, false);
-			assert.strictEqual(customActionCalled, true);
+			assert.isFalse(error);
+			assert.strictEqual(customActionCounter, expectedHooks.length);
 		},
 		'req has an unimplemented action' : function (controller) {
 			try {
 				req.action = 'futureAction';
 				controller.addRequest(req, res, next);
 			} catch (err) {
-				assert.strictEqual(new RegExp(/has not been implemented yet/).test(err.message), true);
+				assert.isTrue(new RegExp(/has not been implemented yet/).test(err.message));
 			}
 		}
 	}
@@ -80,33 +112,58 @@ vows.describe('Controller').addBatch({
   }
 }).addBatch({
   'a controller with a beforeHook on one custom action' : testControllerActions(function () {
-		ForumsController = Controller.extend();
-		ForumsController.prototype.myCoolAction = function (req, res, next) {
-			myCoolActionCalled = true;
-			return;
-		};
-		ForumsController.before('myCoolAction', function (req, res, callback) {
-			customActionCalled = true;
-			callback();
-		});
+		hooks = [];
+		var ForumsController = Controller.extend();
+		ForumsController.prototype.myCoolAction = defineAction('myCoolAction');
+
+		ForumsController.before('myCoolAction', defineHook('hook1'));
+
 		return new ForumsController({
 			name: 'forums'
 		});
-	})
+	}, ['myCoolAction'], ['hook1'])
 }).addBatch({
   'a controller with a beforeHook on all actions' : testControllerActions(function () {
-		customActionCalled = false;
-		ForumsController = Controller.extend();
-		ForumsController.prototype.myCoolAction = function (req, res, next) {
-			myCoolActionCalled = true;
-			return;
-		};
-		ForumsController.before('all', function (req, res, callback) {
-			customActionCalled = true;
-			callback();
-		});
+		hooks = [];
+		var ForumsController = Controller.extend();
+		ForumsController.prototype.myCoolAction = defineAction('myCoolAction');
+		ForumsController.prototype.secondAction = defineAction('secondAction');
+		ForumsController.prototype.thirdAction = defineAction('thirdAction');
+
+		ForumsController.before('all', defineHook('hook2'));
+
 		return new ForumsController({
 			name: 'forums'
 		});
-	})
+	}, ['myCoolAction', 'secondAction', 'thirdAction'], ['hook2', 'hook2', 'hook2'])
+}).addBatch({
+  'a controller with a beforeHook on two actions' : testControllerActions(function () {
+		hooks = [];
+		var ForumsController = Controller.extend();
+		ForumsController.prototype.myCoolAction = defineAction('myCoolAction');
+		ForumsController.prototype.secondAction = defineAction('secondAction');
+		ForumsController.prototype.thirdAction = defineAction('thirdAction');
+
+		ForumsController.before(['myCoolAction', 'thirdAction'], defineHook('hook3'));
+
+		return new ForumsController({
+			name: 'forums'
+		});
+	}, ['myCoolAction', 'secondAction', 'thirdAction'], ['hook3', 'hook3'])
+}).addBatch({
+  'a controller with a beforeHook on two actions' : testControllerActions(function () {
+		hooks = [];
+		var ForumsController = Controller.extend();
+		ForumsController.prototype.myCoolAction = defineAction('myCoolAction');
+		ForumsController.prototype.secondAction = defineAction('secondAction');
+		ForumsController.prototype.thirdAction = defineAction('thirdAction');
+
+		ForumsController.before('myCoolAction', defineHook('hook4'));
+		ForumsController.before(['myCoolAction', 'thirdAction'], defineHook('hook5'));
+		ForumsController.before('all', defineHook('hook6'));
+
+		return new ForumsController({
+			name: 'forums'
+		});
+	}, ['myCoolAction', 'secondAction', 'thirdAction'], ['hook6', 'hook4', 'hook5', 'hook6', 'hook6', 'hook5'])
 }).export(module);
