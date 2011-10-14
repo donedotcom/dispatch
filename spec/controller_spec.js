@@ -166,4 +166,22 @@ vows.describe('Controller').addBatch({
 			name: 'forums'
 		});
 	}, ['myCoolAction', 'secondAction', 'thirdAction'], ['hook6', 'hook4', 'hook5', 'hook6', 'hook6', 'hook5'])
+}).addBatch({
+  'a controller with a beforeHook on two actions' : {
+		'topic' : function () {
+			var ForumsController = Controller.extend();
+			ForumsController.prototype.errorAction = function (req, res, next) {
+				throw new Error('error');
+			};
+
+			return new ForumsController({
+				name: 'forums'
+			});
+		},
+		'should have a status code of 500' : function (controller) {
+			req.action = 'errorAction';
+			controller.addRequest(req, res, next);
+			assert.strictEqual(res.statusCode, 500);
+		}
+	}
 }).export(module);
