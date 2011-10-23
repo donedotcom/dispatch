@@ -10,16 +10,10 @@ Rough structure:
 - router.js - the router and path generator; paths exportable via browserify bify.append(router.path.toString());
 - controller.js - the controller base class
 - render.js - template rendering, today based on Jade, that provides helpers & other goodies
-- helpers -- (available during rendering) - this is in the example structure, should be moved to default helpers
+  - helpers -- (available during rendering) - in the examples directory
+- examples - these are full examples of how to use dispatch in an actual project
 
 Missing items (in rough priority order):
-- vows specs for all items; make them run in this environment
-  - fix paths to be general (for example, /app/views etc)
-  - remove CONFIG object
-- roll up controllers with a single helper function to load them from the expected directory
-- move helpers to be default helpers (keep custom helper capability)
 - improvements to render, redirect, etc to be more full-featured
 - select 3rd party inheritance structure or keep rolling our own?
 - generalize away from Jade to allowing pluggable templates
-
-- Paul
