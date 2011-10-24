@@ -190,6 +190,7 @@ vows.describe('Controller').addBatch({
 			var ForumsController = Controller.extend();
 
 			ForumsController.before('validatedAction', 'validate');
+			ForumsController.before('validatedAction', 'secondHook');
 
 			ForumsController.prototype.validatedAction = function (req, res) {
 				res.render({ statusCode : 200 });
@@ -198,6 +199,11 @@ vows.describe('Controller').addBatch({
 			ForumsController.prototype.validate = function (req, res, next) {
 				res.render({ statusCode : 404 });
 				next('stop'); // any truthy value will work
+			};
+
+			ForumsController.prototype.secondHook = function (req, res, next) {
+				// Should not be called
+				assert.ok(false);
 			};
 
 			return new ForumsController({
