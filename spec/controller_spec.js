@@ -184,4 +184,30 @@ vows.describe('Controller').addBatch({
 			assert.strictEqual(res.statusCode, 500);
 		}
 	}
+}).addBatch({
+	'a controller with a beforeHook that stops the chain' : {
+		'topic' : function () {
+			var ForumsController = Controller.extend();
+
+			ForumsController.before('validatedAction', 'validate');
+
+			ForumsController.prototype.validatedAction = function (req, res) {
+				res.render({ statusCode : 200 });
+			};
+			
+			ForumsController.prototype.validate = function (req, res, next) {
+				res.render({ statusCode : 404 });
+				next('stop'); // any truthy value will work
+			};
+
+			return new ForumsController({
+				name: 'forums'
+			});
+		},
+		'should have a status code of 404' : function (controller) {
+			req.action = 'validatedAction';
+			controller.addRequest(req, res, next);
+			assert.strictEqual(res.statusCode, 404);
+		}
+	}
 }).export(module);
