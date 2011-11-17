@@ -6,7 +6,7 @@
 var assert = require('assert'),
     vows = require('vows'),
     Router = require('../lib/router'),
-		_ = require('underscore')._;
+    _ = require('underscore')._;
 
 function fakeRequest(method, url) {
   var req = { method : method,
