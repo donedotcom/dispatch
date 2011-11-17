@@ -63,6 +63,22 @@ vows.describe('Router').addBatch({
       { action : 'create' }),
   }
 }).addBatch({
+  'singular router top-level resource': {
+    topic: new Router([ { name: 'home', singular: true, customActions : [
+        { name : 'move', method : 'GET', /* scope is always collection */ }
+      ] } ]),
+    'GET index': verifyRequest('get', '/home', 'resource.home.index'),
+    'GET move': verifyRequest('get', '/home/move', 'resource.home.move')
+  },
+}).addBatch({
+  'singular router top-level root': {
+    topic: new Router([ { name: 'home', singular: true, root : true, customActions : [
+        { name : 'move', method : 'GET', /* scope is always collection */ }
+      ] } ]),
+    'GET index': verifyRequest('get', '/', 'resource.home.index'),
+    'GET move': verifyRequest('get', '/move', 'resource.home.move')
+  },
+}).addBatch({
   'router with single top-level resource': {
     topic: new Router([ { name: 'forums' } ]),
     'GET index with format': verifyRequest('get', '/forums.json', 'resource.forums.index',

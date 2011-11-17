@@ -28,6 +28,18 @@ vows.describe('Router Path').addBatch({
     }
   }
 }).addBatch({
+  'single level singular resource' : {
+    topic : new Router([ { name : 'home', singular : true, customActions : [
+      { name : 'move', method : 'GET', /* scope is always collection */ }
+    ] } ]),
+    'index or create' : function (router) {
+      assert.strictEqual(router.path.home_path(), '/home');
+    },
+    'GET' : function (router) {
+      assert.strictEqual(router.path.move_home_path(), '/home/move');
+    }
+  }
+}).addBatch({
   'single level nesting' : {
     topic : new Router([ { name : 'forums' }, { name : 'threads', parent : 'forums' } ]),
     'index or create' : function (router) {
