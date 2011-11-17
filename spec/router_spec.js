@@ -169,6 +169,15 @@ vows.describe('Router').addBatch({
       { action : 'create', forum_id : 14 }),
   }
 }).addBatch({
+  'router with nested resources loaded out-of-order': {
+    topic: new Router([ { name : 'threads', parent : 'forums' }, { name : 'forums' } ]),
+    // Don't need full tests, just need to make sure it actually loads properly
+    'GET index': verifyRequest('get', '/forums', 'resource.forums.index',
+      { action : 'index' }),
+    'GET nested index': verifyRequest('get', '/forums/14/threads', 'resource.threads.index',
+      { action : 'index', forum_id : 14 }),
+  }
+}).addBatch({
   'router with custom actions': {
     topic: new Router([ { name: 'forums',
       customActions: [ { name: 'browse', method: 'GET', scope: 'collection' },
