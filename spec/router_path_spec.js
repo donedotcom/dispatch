@@ -5,6 +5,7 @@
 var assert = require('assert'),
     vows = require('vows'),
     Router = require('../lib/router'),
+    resource = require('./helper').resource,
     _ = require('underscore')._;
 
 var forum = { id : 5 },
@@ -13,7 +14,7 @@ var forum = { id : 5 },
 
 vows.describe('Router Path').addBatch({
   'single level resource' : {
-    topic : new Router([ { name: 'forums' } ]),
+    topic : new Router([ resource({ name: 'forums' }) ]),
     'index or create' : function (router) {
       assert.strictEqual(router.path.forums_path(), '/forums');
     },
@@ -29,9 +30,9 @@ vows.describe('Router Path').addBatch({
   }
 }).addBatch({
   'single level singular resource' : {
-    topic : new Router([ { name : 'home', singular : true, customActions : [
+    topic : new Router([ resource({ name : 'home', singular : true, customActions : [
       { name : 'move', method : 'GET', /* scope is always collection */ }
-    ] } ]),
+    ] }) ]),
     'index or create' : function (router) {
       assert.strictEqual(router.path.home_path(), '/home');
     },
@@ -41,7 +42,7 @@ vows.describe('Router Path').addBatch({
   }
 }).addBatch({
   'single level nesting' : {
-    topic : new Router([ { name : 'forums' }, { name : 'threads', parent : 'forums' } ]),
+    topic : new Router([ resource({ name : 'forums' }), resource({ name : 'threads', parent : 'forums' }) ]),
     'index or create' : function (router) {
       assert.strictEqual(router.path.forums_path(), '/forums');
     },
@@ -69,7 +70,10 @@ vows.describe('Router Path').addBatch({
   }
 }).addBatch({
   'top level resource nesting' : {
-    topic : new Router([ { name : 'forums', root : true }, { name : 'threads', parent : 'forums' } ]),
+    topic : new Router([ 
+      resource({ name : 'forums', root : true }), 
+      resource({ name : 'threads', parent : 'forums' }) 
+    ]),
     'index or create' : function (router) {
       assert.strictEqual(router.path.forums_path(), '/');
     },
@@ -97,7 +101,7 @@ vows.describe('Router Path').addBatch({
   }
 }).addBatch({
   'top level resource nesting out-of-order loading': {
-    topic: new Router([ { name : 'threads', parent : 'forums' }, { name : 'forums' } ]),
+    topic: new Router([ resource({ name : 'threads', parent : 'forums' }), resource({ name : 'forums' }) ]),
     // Don't need full tests, just need to make sure it actually loads properly
     'index or create' : function (router) {
       assert.strictEqual(router.path.forums_path(), '/forums');
@@ -108,8 +112,8 @@ vows.describe('Router Path').addBatch({
   } 
 }).addBatch({
   'multi-level nesting' : {
-    topic : new Router([ { name : 'users' }, { name : 'forums', parent : 'users' },
-      { name : 'threads', parent : 'forums' } ]),
+    topic : new Router([ resource({ name : 'users' }), resource({ name : 'forums', parent : 'users' }),
+      resource({ name : 'threads', parent : 'forums' }) ]),
     'nested index or create' : function (router) {
       assert.strictEqual(router.path.user_forum_threads_path(user, forum),
         '/users/1/forums/5/threads');
@@ -129,10 +133,10 @@ vows.describe('Router Path').addBatch({
   }
 }).addBatch({
   'custom actions' : {
-    topic : new Router([ { name: 'forums', customActions : [
+    topic : new Router([ resource({ name: 'forums', customActions : [
       { name : 'lock', method : 'GET', scope : 'element' },
       { name : 'design', method : 'GET', scope : 'collection' }
-    ] } ]),
+    ] }) ]),
     'collection action' : function (router) {
       assert.strictEqual(router.path.design_forums_path(), '/forums/design');
     },
@@ -142,7 +146,7 @@ vows.describe('Router Path').addBatch({
   }
 }).addBatch({
   'direct id value' : {
-    topic : new Router([ { name: 'forums' } ]),
+    topic : new Router([ resource({ name: 'forums' }) ]),
     'show, delete, or update (string)' : function (router) {
       assert.strictEqual(router.path.forum_path("5"), '/forums/5');
     },
@@ -158,7 +162,7 @@ vows.describe('Router Path').addBatch({
   }
 }).addBatch({
   'custom id field' : {
-    topic : new Router([ { name: 'forums', idField : '_id' } ]),
+    topic : new Router([ resource({ name: 'forums', idField : '_id' }) ]),
     'show, delete, or update' : function (router) {
       assert.strictEqual(router.path.forum_path({ _id : 5 }), '/forums/5');
     },

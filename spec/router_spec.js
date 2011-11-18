@@ -2,10 +2,10 @@
   Done. Router Spec
   Copyright (c) 2011 Done. Corporation
 */
-
 var assert = require('assert'),
     vows = require('vows'),
     Router = require('../lib/router'),
+    resource = require('./helper').resource,
     _ = require('underscore')._;
 
 function fakeRequest(method, url) {
@@ -48,7 +48,7 @@ any routes that result in the same event being fired need to be tested in separa
 */
 vows.describe('Router').addBatch({
   'router with single top-level resource': {
-    topic: new Router([ { name: 'forums' } ]),
+    topic: new Router([ resource({ name: 'forums' }) ]),
     'GET index': verifyRequest('get', '/forums', 'resource.forums.index',
       { action : 'index' }),
     'GET show': verifyRequest('get', '/forums/14', 'resource.forums.show',
@@ -64,23 +64,23 @@ vows.describe('Router').addBatch({
   }
 }).addBatch({
   'singular router top-level resource': {
-    topic: new Router([ { name: 'home', singular: true, customActions : [
+    topic: new Router([ resource({ name: 'home', singular: true, customActions : [
         { name : 'move', method : 'GET', /* scope is always collection */ }
-      ] } ]),
+      ] }) ]),
     'GET index': verifyRequest('get', '/home', 'resource.home.index'),
     'GET move': verifyRequest('get', '/home/move', 'resource.home.move')
   },
 }).addBatch({
   'singular router top-level root': {
-    topic: new Router([ { name: 'home', singular: true, root : true, customActions : [
+    topic: new Router([ resource({ name: 'home', singular: true, root : true, customActions : [
         { name : 'move', method : 'GET', /* scope is always collection */ }
-      ] } ]),
+      ] }) ]),
     'GET index': verifyRequest('get', '/', 'resource.home.index'),
     'GET move': verifyRequest('get', '/move', 'resource.home.move')
   },
 }).addBatch({
   'router with single top-level resource': {
-    topic: new Router([ { name: 'forums' } ]),
+    topic: new Router([ resource({ name: 'forums' }) ]),
     'GET index with format': verifyRequest('get', '/forums.json', 'resource.forums.index',
       { action : 'index' }, 'json'),
     'GET show': verifyRequest('get', '/forums/14.json', 'resource.forums.show',
@@ -88,7 +88,7 @@ vows.describe('Router').addBatch({
   }
 }).addBatch({
   'router with single top-level resource': {
-    topic: new Router([ { name: 'forums' } ]),
+    topic: new Router([ resource({ name: 'forums' }) ]),
     'GET bad action': {
       topic: function (router) {
         var cb = this.callback;
@@ -106,7 +106,7 @@ vows.describe('Router').addBatch({
   }
 }).addBatch({
   'router with single top-level resource': {
-    topic: new Router([ { name: 'forums' } ]),
+    topic: new Router([ resource({ name: 'forums' }) ]),
     'GET bad resource': {
       topic: function (router) {
         var cb = this.callback;
@@ -124,7 +124,7 @@ vows.describe('Router').addBatch({
   }
 }).addBatch({
   'router with root-level resource': {
-    topic: new Router([ { name : 'forums', root : true } ]),
+    topic: new Router([ resource({ name : 'forums', root : true }) ]),
     'GET index': verifyRequest('get', '/', 'resource.forums.index',
       { action : 'index' }),
     'GET show': verifyRequest('get', '/14', 'resource.forums.show',
@@ -140,7 +140,7 @@ vows.describe('Router').addBatch({
   }
 }).addBatch({
   'router with nested resources': {
-    topic: new Router([ { name : 'forums' }, { name : 'threads', parent : 'forums' } ]),
+    topic: new Router([ resource({ name : 'forums' }), resource({ name : 'threads', parent : 'forums' }) ]),
     'GET index': verifyRequest('get', '/forums', 'resource.forums.index',
       { action : 'index' }),
     'GET show': verifyRequest('get', '/forums/14', 'resource.forums.show',
@@ -170,7 +170,7 @@ vows.describe('Router').addBatch({
   }
 }).addBatch({
   'router with nested resources loaded out-of-order': {
-    topic: new Router([ { name : 'threads', parent : 'forums' }, { name : 'forums' } ]),
+    topic: new Router([ resource({ name : 'threads', parent : 'forums' }), resource({ name : 'forums' }) ]),
     // Don't need full tests, just need to make sure it actually loads properly
     'GET index': verifyRequest('get', '/forums', 'resource.forums.index',
       { action : 'index' }),
@@ -179,9 +179,9 @@ vows.describe('Router').addBatch({
   }
 }).addBatch({
   'router with custom actions': {
-    topic: new Router([ { name: 'forums',
+    topic: new Router([ resource({ name: 'forums',
       customActions: [ { name: 'browse', method: 'GET', scope: 'collection' },
-        { name: 'choose', method: 'GET', scope: 'element' } ] }
+        { name: 'choose', method: 'GET', scope: 'element' } ] })
     ]),
     'GET index': verifyRequest('get', '/forums', 'resource.forums.index',
       { action : 'index' }),
