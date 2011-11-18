@@ -56,15 +56,15 @@ function testControllerActions (controller, expectedActions, expectedHooks) {
       var error = false;
       actionsCalled = [];
       customActionCounter = 0;
-      try {
-        expectedActions.forEach(function (action) {
-          req.action = action;
-          controller.addRequest(req, res, next);
-          assert.isTrue(actionsCalled[action]);
-        });
-      } catch (err) {
+      controller.on('error', function (err) {
         error = err;
-      }
+      });
+      
+      expectedActions.forEach(function (action) {
+        req.action = action;
+        controller.addRequest(req, res, next);
+        assert.isTrue(actionsCalled[action]);
+      });
       assert.isFalse(error);
       assert.strictEqual(customActionCounter, expectedHooks.length);
       expectedHooks.forEach(function (hook, i) {
@@ -75,25 +75,25 @@ function testControllerActions (controller, expectedActions, expectedHooks) {
       var error = false;
       customActionCounter = 0;
       actionsCalled = [];
-      try {
-        expectedActions.forEach(function (action) {
-          req.action = action;
-          controller.addRequest(req, res, next);
-          assert.isTrue(actionsCalled[action]);
-        });
-      } catch (err) {
+      controller.on('error', function (err) {
         error = err;
-      }
+      });
+      expectedActions.forEach(function (action) {
+        req.action = action;
+        controller.addRequest(req, res, next);
+        assert.isTrue(actionsCalled[action]);
+      });
       assert.isFalse(error);
       assert.strictEqual(customActionCounter, expectedHooks.length);
     },
     'req has an unimplemented action' : function (controller) {
-      try {
-        req.action = 'futureAction';
-        controller.addRequest(req, res, next);
-      } catch (err) {
-        assert.isTrue(new RegExp(/has not been implemented yet/).test(err.message));
-      }
+      var error = false;
+      controller.on('error', function (err) {
+        error = err;
+      });
+      req.action = 'futureAction';
+      controller.addRequest(req, res, next);
+      assert.isTrue(new RegExp(/has not been implemented yet/).test(error.message));
     }
   }
   return tests;
@@ -170,8 +170,8 @@ vows.describe('Controller').addBatch({
   'a controller with a beforeHook on two actions' : {
     'topic' : function () {
       var ForumsController = Controller.extend();
-      ForumsController.prototype.errorAction = function (req, res, next) {
-        throw new Error('error');
+      ForumsController.prototype.errorAction = function (req, res) {
+        res.error(new Error('error'));
       };
 
       return new ForumsController({
@@ -179,6 +179,10 @@ vows.describe('Controller').addBatch({
       });
     },
     'should have a status code of 500' : function (controller) {
+      controller.on('error', function (err) {
+        // noop
+      });
+      
       req.action = 'errorAction';
       controller.addRequest(req, res, next);
       assert.strictEqual(res.statusCode, 500);
@@ -211,6 +215,10 @@ vows.describe('Controller').addBatch({
       });
     },
     'should have a status code of 404' : function (controller) {
+      controller.on('error', function (err) {
+        // noop
+      });
+      
       req.action = 'validatedAction';
       controller.addRequest(req, res, next);
       assert.strictEqual(res.statusCode, 404);
