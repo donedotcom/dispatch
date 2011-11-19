@@ -176,6 +176,14 @@ vows.describe('Router').addBatch({
       { action : 'index' }),
     'GET nested index': verifyRequest('get', '/forums/14/threads', 'resource.threads.index',
       { action : 'index', forum_id : 14 }),
+  },
+  'router with nested resources loaded out-of-order and intermediate resource requiring queueing': {
+    topic: new Router([ resource({ name : 'threads', parent : 'forums' }), resource({ name : 'users' }), resource({ name : 'forums' }) ]),
+    // Don't need full tests, just need to make sure it actually loads properly
+    'GET index': verifyRequest('get', '/forums', 'resource.forums.index',
+      { action : 'index' }),
+    'GET nested index': verifyRequest('get', '/forums/14/threads', 'resource.threads.index',
+      { action : 'index', forum_id : 14 }),
   }
 }).addBatch({
   'router with custom actions': {

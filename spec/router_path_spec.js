@@ -109,7 +109,17 @@ vows.describe('Router Path').addBatch({
     'nested index or create' : function (router) {
       assert.strictEqual(router.path.forum_threads_path(forum), '/forums/5/threads');
     },
-  } 
+  },
+  'router with nested resources loaded out-of-order and intermediate resource requiring queueing': {
+    topic: new Router([ resource({ name : 'threads', parent : 'forums' }), resource({ name : 'users' }), resource({ name : 'forums' }) ]),
+    // Don't need full tests, just need to make sure it actually loads properly
+    'index or create' : function (router) {
+      assert.strictEqual(router.path.forums_path(), '/forums');
+    },
+    'nested index or create' : function (router) {
+      assert.strictEqual(router.path.forum_threads_path(forum), '/forums/5/threads');
+    },
+  }
 }).addBatch({
   'multi-level nesting' : {
     topic : new Router([ resource({ name : 'users' }), resource({ name : 'forums', parent : 'users' }),
