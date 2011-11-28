@@ -8,6 +8,7 @@
 		"jade": "0.16.x",
 		"lingo": "0.0.x",
 		"winston": "0.5.x",
-		"underscore": "1.2.x"
+		"underscore": "1.2.x",
+		"async" : "0.1.x"
 	}
 }

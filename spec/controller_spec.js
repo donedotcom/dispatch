@@ -17,7 +17,9 @@ var req = {
 };
 var res = {
   status: 200,
-  flash: 'new flash message'
+  flash: 'new flash message',
+  setHeader : function () {},
+  end : function () {}
 };
 var next = function () {
   throw 'next should not be called';
@@ -26,7 +28,8 @@ var next = function () {
 // A global to inform whether a custom action has been called or not.
 // Set to false before defining a custom action (i.e., in the topic).
 var actionsCalled = [],
-  hooks;
+    customActionCounter,
+    hooks;
 
 function defineAction (actionName) {
   return function (req, res, next) {
@@ -197,11 +200,11 @@ vows.describe('Controller').addBatch({
       ForumsController.before('validatedAction', 'secondHook');
 
       ForumsController.prototype.validatedAction = function (req, res) {
-        res.render({ statusCode : 200 });
+        res.render({ head : 200 });
       };
       
       ForumsController.prototype.validate = function (req, res, next) {
-        res.render({ statusCode : 404 });
+        res.render({ head : 404 });
         next('stop'); // any truthy value will work
       };
 

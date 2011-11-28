@@ -30,7 +30,7 @@ ThreadsController.prototype.show = function (req, res, next) {
   var thread = ThreadsDb[req.id];
   
   if (thread) {
-    if (req.method == 'json') {
+    if (req.method === 'json') {
       res.render({ json : thread });
     } else {
       res.render({ locals : { thread : thread } });
@@ -40,5 +40,5 @@ ThreadsController.prototype.show = function (req, res, next) {
   }
 };
 
-// Thread is a child of Forums 
+// Thread is a child of Forums
 module.exports = new ThreadsController({ name : 'threads', parent : 'forums' });

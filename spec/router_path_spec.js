@@ -70,9 +70,9 @@ vows.describe('Router Path').addBatch({
   }
 }).addBatch({
   'top level resource nesting' : {
-    topic : new Router([ 
-      resource({ name : 'forums', root : true }), 
-      resource({ name : 'threads', parent : 'forums' }) 
+    topic : new Router([
+      resource({ name : 'forums', root : true }),
+      resource({ name : 'threads', parent : 'forums' })
     ]),
     'index or create' : function (router) {
       assert.strictEqual(router.path.forums_path(), '/');
