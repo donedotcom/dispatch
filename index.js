@@ -10,5 +10,6 @@ exports.config = {
 };
 
 exports.Controller = require('./lib/controller');
+exports.Render = require('./lib/render');
 exports.Router = require('./lib/router');
 exports.logger = require('./lib/logger');
