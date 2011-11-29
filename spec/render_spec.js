@@ -36,7 +36,7 @@ vows.describe('Render').addBatch({
   'template with absolute pathname' : {
     topic : function () {
       var callback = this.callback;
-      render.renderToString(path.join(__dirname, 'fixtures', 'views', 'basic.html.jade'), 
+      render.renderToString(path.join(__dirname, 'fixtures', 'views', 'basic.html.jade'),
         { locals : { name : 'madonna' } }, this.callback);
     },
     'renders data' : function (output) {
@@ -191,7 +191,33 @@ vows.describe('Render').addBatch({
       assert.ok(output.match(/elvis/), "Did not match: " + output);
     }
   }
-  
+
+// ---------------------------------------------------------------------------
+// Direct include of other file types
+// ---------------------------------------------------------------------------
+}).addBatch({
+  'text file' : {
+    topic : function () {
+      var callback = this.callback;
+      render.renderToString('basic_text.txt', {}, function (err, output) {
+        callback(err, output);
+      });
+    },
+    'includes file' : function (output) {
+      assert.ok(output.match(/text file/), "Did not match: " + output);
+    },
+  },
+  'text file as include' : {
+    topic : function () {
+      var callback = this.callback;
+      render.renderToString('include_text', {}, function (err, output) {
+        callback(err, output);
+      });
+    },
+    'includes file' : function (output) {
+      assert.ok(output.match(/text file/), "Did not match: " + output);
+    },
+  }
 
 // ---------------------------------------------------------------------------
 // Jade-specific tests
