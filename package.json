@@ -6,6 +6,7 @@
 		"eventemitter2": "0.4.x",
 		"vows": "0.5.x",
 		"jade": "0.16.x",
+		"ejs": "0.5.x",
 		"lingo": "0.0.x",
 		"winston": "0.5.x",
 		"underscore": "1.2.x",

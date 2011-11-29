@@ -7,9 +7,10 @@ var assert = require('assert'),
     _ = require('underscore')._;
 
 var render = new Render({ dir : __dirname + '/fixtures/views' });
+var renderEjs = new Render({ dir : __dirname + '/fixtures/views', defaultTemplate : '.ejs' });
 
 // ---------------------------------------------------------------------------
-// Template tests
+// Template tests (Jade)
 // ---------------------------------------------------------------------------
 vows.describe('Render').addBatch({
   'basic template with extension' : {
@@ -83,6 +84,103 @@ vows.describe('Render').addBatch({
       assert.ok(output.match(/presley/), "Did not match: " + output);
     }
   },
+  'ejs template in jade default renderer' : {
+    topic : function () {
+      render.renderToString('basic_ejs.html.ejs', {
+        locals : { name : 'elvis' }
+      }, this.callback);
+    },
+    'renders body data' : function (output) {
+      assert.ok(output.match(/elvis/), "Did not match: " + output);
+    }
+  }
+
+// ---------------------------------------------------------------------------
+// Template tests (EJS)
+// ---------------------------------------------------------------------------
+}).addBatch({
+  'basic ejs template with extension' : {
+    topic : function () {
+      var callback = this.callback;
+      renderEjs.renderToString('basic_ejs.html.ejs', { locals : { name : 'elvis' } }, function (err, output) {
+        callback(err, output);
+      });
+    },
+    'renders data' : function (output) {
+      assert.ok(output.match(/elvis/), "Did not match: " + output);
+    },
+    'cached data' : {
+      topic : function () {
+        renderEjs.renderToString('basic_ejs.html.ejs', { locals : { name : 'madonna' } }, this.callback);
+      },
+      'renders data' : function (output) {
+        assert.ok(output.match(/madonna/), "Did not match: " + output);
+      }
+    },
+  },
+  'basic ejs template without extension' : {
+    topic : function () {
+      renderEjs.renderToString('basic_ejs.html', { locals : { name : 'elvis' } }, this.callback);
+    },
+    'renders data' : function (output) {
+      assert.ok(output.match(/elvis/), "Did not match: " + output);
+    },
+  },
+  'ejs template include' : {
+    topic : function () {
+      renderEjs.renderToString('include_parent_ejs.html',
+        { locals : { firstName : 'elvis', lastName : 'presley'} },
+        this.callback);
+    },
+    'renders parent data' : function (output) {
+      assert.ok(output.match(/elvis/), "Did not match: " + output);
+    },
+    'renders child data' : function (output) {
+      assert.ok(output.match(/presley/), "Did not match: " + output);
+    }
+  },
+  'ejs template layout' : {
+    topic : function () {
+      renderEjs.renderToString('basic_ejs.html', {
+        layout : 'layout_ejs.html',
+        locals : { title : 'musicians', name : 'elvis' }
+      }, this.callback);
+    },
+    'renders layout data' : function (output) {
+      assert.ok(output.match(/musicians/), "Did not match: " + output);
+    },
+    'renders body data' : function (output) {
+      assert.ok(output.match(/elvis/), "Did not match: " + output);
+    }
+  },
+  'ejs template layout and include' : {
+    topic : function () {
+      renderEjs.renderToString('include_parent_ejs.html', {
+        layout : 'layout_ejs.html',
+        locals : { title : 'musicians', firstName : 'elvis', lastName: 'presley' }
+      }, this.callback);
+    },
+    'renders layout data' : function (output) {
+      assert.ok(output.match(/musicians/), "Did not match: " + output);
+    },
+    'renders parent data' : function (output) {
+      assert.ok(output.match(/elvis/), "Did not match: " + output);
+    },
+    'renders child data' : function (output) {
+      assert.ok(output.match(/presley/), "Did not match: " + output);
+    }
+  },
+  'jade template in ejs default renderer' : {
+    topic : function () {
+      render.renderToString('basic.html.jade', {
+        locals : { name : 'elvis' }
+      }, this.callback);
+    },
+    'renders body data' : function (output) {
+      assert.ok(output.match(/elvis/), "Did not match: " + output);
+    }
+  }
+  
 
 // ---------------------------------------------------------------------------
 // Jade-specific tests
