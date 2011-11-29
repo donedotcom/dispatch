@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 var assert = require('assert'),
     vows = require('vows'),
+    path = require('path'),
     Render = require('../lib/render'),
     _ = require('underscore')._;
 
@@ -31,6 +32,16 @@ vows.describe('Render').addBatch({
         assert.ok(output.match(/madonna/), "Did not match: " + output);
       }
     },
+  },
+  'template with absolute pathname' : {
+    topic : function () {
+      var callback = this.callback;
+      render.renderToString(path.join(__dirname, 'fixtures', 'views', 'basic.html.jade'), 
+        { locals : { name : 'madonna' } }, this.callback);
+    },
+    'renders data' : function (output) {
+      assert.ok(output.match(/madonna/), "Did not match: " + output);
+    }
   },
   'basic template without extension' : {
     topic : function () {
