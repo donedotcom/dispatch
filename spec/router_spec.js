@@ -18,10 +18,15 @@ function fakeRequest(method, url) {
 function verifyRequest(method, url, event, keys, format) {
   var test = {
     topic: function (router) {
+      var callback = this.callback;
+
       router.on(event, function (req) {
-        this.callback(null, req);
-      }.bind(this));
-      router.middleware(fakeRequest(method, url));
+        callback(null, req);
+      });
+      router.middleware(fakeRequest(method, url), {}, function (err) {
+        console.error(method + ': ' + url);
+        throw new Error('Should not have called next()');
+      });
     },
     'should have correct action': function (err, req) {
       assert.isNull(err); // basic test because the callback won't fire if it can't find the action
@@ -184,6 +189,16 @@ vows.describe('Router').addBatch({
       { action : 'index' }),
     'GET nested index': verifyRequest('get', '/forums/14/threads', 'resource.threads.index',
       { action : 'index', forum_id : 14 }),
+  },
+  'root resource with resources loaded out-of-order' : {
+    // Root resource is effectively the parent of all other resources and must be scheduled last
+    topic : new Router([ resource({ name : 'reviews' }), resource({ name : 'forums', root : true }) ]),
+    'GET forums index': verifyRequest('get', '/', 'resource.forums.index', { action : 'index' }),
+    'GET show': verifyRequest('get', '/14', 'resource.forums.show',
+      { action : 'show', id : 14 }),
+    'GET reviews index': verifyRequest('get', '/reviews', 'resource.reviews.index', { action : 'index' }),
+    'GET reviews show': verifyRequest('get', '/reviews/6', 'resource.reviews.show',
+      { action : 'show', id : 6 }),
   }
 }).addBatch({
   'router with custom actions': {
