@@ -181,14 +181,14 @@ vows.describe('Controller').addBatch({
         name: 'forums'
       });
     },
-    'should have a status code of 500' : function (controller) {
+    'should have a status code of 404' : function (controller) {
       controller.on('error', function (err) {
         // noop
       });
       
       req.action = 'errorAction';
       controller.addRequest(req, res, next);
-      assert.strictEqual(res.statusCode, 500);
+      assert.strictEqual(res.statusCode, 404);
     }
   }
 }).addBatch({
