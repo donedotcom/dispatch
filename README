@@ -12,8 +12,4 @@ Structure:
 To-do items (in rough priority order):
 - improvements to render, redirect, etc to be more full-featured
 - select 3rd party inheritance structure or keep rolling our own?
-- generalize away from Jade to allowing pluggable templates
-
-Development:
-- Install Coffeescript, jshint and vows
-- cake hint, cake spec should pass
+- generalize away from Jade to allowing pluggable templates (done, Jade and EJS now supported)
