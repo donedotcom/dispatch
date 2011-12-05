@@ -1,5 +1,4 @@
 fs = require 'fs'
-sys = require 'sys'
 {spawn, exec} = require 'child_process'
 util = require 'util'
 async = require 'async'
